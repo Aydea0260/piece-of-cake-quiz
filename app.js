@@ -110,14 +110,14 @@
       copied: 'Enlace copiado',
       leadBadge: 'Gratis',
       leadTitle: 'Tu Brand Voice Playbook gratis',
-      leadSub: 'Déjanos tus datos y te enviamos el playbook completo de tu arquetipo: tono de voz, vocabulario, pilares de contenido y 3 taglines listos para usar.',
+      leadSub: 'Déjanos tus datos para registrar tu resultado y preparar tu playbook: tono de voz, vocabulario, pilares de contenido y 3 taglines listos para usar.',
       lNombre: 'Nombre', lMarca: 'Marca', lEmail: 'Email',
       lWeb: 'Web o Instagram', lIdioma: 'Idioma', lReto: 'Mayor reto de tu marca',
       retos: ['Definir la voz de mi marca', 'Crear contenido que conecte', 'Diferenciarme de la competencia', 'Crecer en redes sociales', 'Convertir seguidores en clientes', 'Otro'],
-      submit: 'Enviar y recibir mi playbook',
-      errRequired: 'Cuéntanos tu nombre y un email válido para enviarte el playbook.',
+      submit: 'Guardar mi resultado',
+      errRequired: 'Cuéntanos tu nombre y un email válido para guardar tu resultado.',
       successTitle: '¡Listo!',
-      successSub: 'Tu playbook va en camino. Revisa tu bandeja de entrada en los próximos minutos.',
+      successSub: 'Tu resultado quedó registrado. Te contactaremos con tu Brand Voice Playbook.',
       footer: 'Hecho con amor por Piece of Cake · Descubre el ADN de tu marca',
       shareText: function (n) { return 'Descubrí el arquetipo de mi marca: ' + n + '. Haz el test gratis de 5 minutos:'; },
       loadError: 'No pudimos cargar el test. Revisa tu conexión e intenta de nuevo.'
@@ -147,14 +147,14 @@
       copied: 'Link copied',
       leadBadge: 'Free',
       leadTitle: 'Your free Brand Voice Playbook',
-      leadSub: "Leave your details and we'll send you the full playbook for your archetype: voice tone, vocabulary, content pillars, and 3 ready-to-use taglines.",
+      leadSub: 'Leave your details so we can record your result and prepare your playbook: voice tone, vocabulary, content pillars, and 3 ready-to-use taglines.',
       lNombre: 'Name', lMarca: 'Brand', lEmail: 'Email',
       lWeb: 'Website or Instagram', lIdioma: 'Language', lReto: "Your brand's biggest challenge",
       retos: ['Defining my brand voice', 'Creating content that connects', 'Standing out from competitors', 'Growing on social media', 'Turning followers into customers', 'Other'],
-      submit: 'Send and get my playbook',
-      errRequired: 'Tell us your name and a valid email so we can send your playbook.',
+      submit: 'Save my result',
+      errRequired: 'Tell us your name and a valid email so we can save your result.',
       successTitle: 'Done!',
-      successSub: 'Your playbook is on its way. Check your inbox in the next few minutes.',
+      successSub: 'Your result was recorded. We will reach out with your Brand Voice Playbook.',
       footer: 'Made with love by Piece of Cake · Discover your brand DNA',
       shareText: function (n) { return "I discovered my brand's archetype: " + n + '. Take the free 5-minute quiz:'; },
       loadError: 'We could not load the quiz. Check your connection and try again.'
@@ -387,20 +387,30 @@
   }
 
   function postLead(payload) {
-    if (!window.APPS_SCRIPT_URL || window.APPS_SCRIPT_URL === 'PEGAR_URL_AQUI') {
-      return Promise.resolve(false); // sin URL configurada: no se envía, pero no se rompe
+    if (!window.QUIZ_FORM_URL || !window.QUIZ_FORM_ENTRIES) {
+      return Promise.resolve(false); // sin formulario configurado: no se envía, pero no se rompe
     }
-    // Se envía por GET: al seguir el redirect 302 de Apps Script los navegadores
-    // degradan POST->GET y doPost jamás se ejecutaría; doGet recibe el query
-    // string y registra la fila igual. Respuesta opaca (no-cors): un intento.
-    var qs = Object.keys(payload).map(function (k) {
+    // Se envía al Google Form por POST urlencoded (mode no-cors: respuesta
+    // opaca). Un solo intento por envío: no se puede confirmar ni reintentar
+    // sin crear duplicados.
+    var E = window.QUIZ_FORM_ENTRIES;
+    var map = {
+      nombre: E.nombre, marca: E.marca, email: E.email, web: E.web_instagram,
+      idioma: E.idioma, reto: E.reto, utm: E.utm_source,
+      primario: E.primario, secundario: E.secundario, margen: E.margen_pct,
+      confianza: E.confianza, mixto: E.perfil_mixto,
+      top5: E.top5_json, respuestas: E.respuestas_json
+    };
+    var body = Object.keys(map).map(function (k) {
       var v = payload[k];
       if (v !== null && typeof v === 'object') v = JSON.stringify(v);
-      return encodeURIComponent(k) + '=' + encodeURIComponent(v == null ? '' : v);
+      return encodeURIComponent('entry.' + map[k]) + '=' + encodeURIComponent(v == null ? '' : v);
     }).join('&');
-    return fetch(window.APPS_SCRIPT_URL + '?' + qs, {
-      method: 'GET',
-      mode: 'no-cors'
+    return fetch(window.QUIZ_FORM_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body
     }).then(function (res) { return res.type === 'opaque'; }).catch(function () { return false; });
   }
 
@@ -414,7 +424,7 @@
       return;
     }
     $('btn-submit').disabled = true;
-    // El resultado ya se mostró antes del formulario. La respuesta de Apps Script
+    // El resultado ya se mostró antes del formulario. La respuesta del envío
     // es opaca (no-cors), así que no se puede confirmar ni reintentar sin crear
     // duplicados: un solo intento por envío.
     postLead(payload).then(function () {
