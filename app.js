@@ -386,15 +386,19 @@
     };
   }
 
-  function postLead(payload, isRetry) {
+  function postLead(payload) {
     if (!window.APPS_SCRIPT_URL || window.APPS_SCRIPT_URL === 'PEGAR_URL_AQUI') {
       return Promise.resolve(false); // sin URL configurada: no se envía, pero no se rompe
     }
+    // Apps Script responde 302 y en modo cors el navegador degradaría POST->GET
+    // en el redirect, por lo que doPost jamás se ejecutaría. Con no-cors el POST
+    // sí llega a doPost; la respuesta es opaca (no se puede leer ni confirmar).
     return fetch(window.APPS_SCRIPT_URL, {
       method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
-    }).then(function (res) { return res.ok; }).catch(function () { return false; });
+    }).then(function (res) { return res.type === 'opaque'; }).catch(function () { return false; });
   }
 
   function submitLead(ev) {
@@ -407,12 +411,10 @@
       return;
     }
     $('btn-submit').disabled = true;
-    // El resultado ya se mostró antes del formulario: el éxito es visible
-    // aunque el POST falle; el reintento ocurre en silencio.
-    postLead(payload, false).then(function (ok) {
-      if (!ok) {
-        setTimeout(function () { postLead(payload, true); }, 4000);
-      }
+    // El resultado ya se mostró antes del formulario. La respuesta de Apps Script
+    // es opaca (no-cors), así que no se puede confirmar ni reintentar sin crear
+    // duplicados: un solo intento por envío.
+    postLead(payload).then(function () {
       $('lead-form-wrap').style.display = 'none';
       $('lead-success').style.display = 'block';
       window.scrollTo(0, 0);
