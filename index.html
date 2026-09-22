@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Quiz de Arquetipos — Piece of Cake</title>
+  <meta name="description" content="Descubre el arquetipo de tu marca en 5 minutos. Test gratuito de Piece of Cake: 20 preguntas, resultado instantáneo.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+        <path d="M24 6c-6 0-10 4-10.6 9.4C9 16.6 6 20.4 6 25c0 1.7.4 3.2 1.2 4.6L24 44l16.8-14.4c.8-1.4 1.2-2.9 1.2-4.6 0-4.6-3-8.4-7.4-9.6C34 10.4 30 6 24 6z" fill="#c4743b"/>
+        <circle cx="17" cy="24" r="2.2" fill="#fff9f2"/>
+        <circle cx="24" cy="27" r="2.2" fill="#fff9f2"/>
+        <circle cx="31" cy="24" r="2.2" fill="#fff9f2"/>
+        <circle cx="24" cy="20" r="2.2" fill="#fff9f2"/>
+      </svg>
+      <span class="brand-name">Piece of <span class="cake">Cake</span></span>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- Bienvenida -->
+    <section id="screen-welcome" class="screen" aria-label="Bienvenida">
+      <div class="hero">
+        <svg class="cupcake" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <path d="M32 8c-8 0-13 5-13.8 11.6C12.4 21 8 25.6 8 31c0 2.2.6 4.2 1.6 6L32 56l22.4-19c1-1.8 1.6-3.8 1.6-6 0-5.4-4.4-10-10.2-11.4C45 13 40 8 32 8z" fill="#e8a87c"/>
+          <path d="M32 8c-8 0-13 5-13.8 11.6C12.4 21 8 25.6 8 31c0 2.2.6 4.2 1.6 6h44.8c1-1.8 1.6-3.8 1.6-6 0-5.4-4.4-10-10.2-11.4C45 13 40 8 32 8z" fill="#c4743b"/>
+          <circle cx="24" cy="28" r="2.6" fill="#fff9f2"/>
+          <circle cx="32" cy="32" r="2.6" fill="#fff9f2"/>
+          <circle cx="40" cy="28" r="2.6" fill="#fff9f2"/>
+          <circle cx="32" cy="23" r="2.6" fill="#d4a24e"/>
+        </svg>
+        <div><span class="badge" id="welcome-badge"></span></div>
+        <h1 id="welcome-title"></h1>
+        <p class="lead" id="welcome-sub"></p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" id="btn-start"></button>
+          <div class="lang-switch" role="group" aria-label="Idioma / Language">
+            <button type="button" id="lang-es">ES</button>
+            <button type="button" id="lang-en">EN</button>
+          </div>
+        </div>
+        <p class="fineprint" id="welcome-fine"></p>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section id="screen-quiz" class="screen" aria-label="Preguntas">
+      <div class="quiz-top">
+        <div class="quiz-count" id="quiz-count"></div>
+        <div class="progress"><div class="fill" id="progress-fill"></div></div>
+      </div>
+      <h2 class="question" id="question-text"></h2>
+      <div class="options" id="options"></div>
+      <div class="quiz-nav">
+        <button class="link-back" id="btn-back"></button>
+      </div>
+    </section>
+
+    <!-- Resultado -->
+    <section id="screen-result" class="screen" aria-label="Resultado">
+      <div class="result-head">
+        <div><span class="badge" id="result-badge"></span></div>
+        <h1 id="result-heading"></h1>
+        <div><span class="confidence" id="confidence-pill"></span></div>
+      </div>
+      <div id="mixed-note" class="mixed-note" style="display:none"></div>
+      <div id="arche-cards"></div>
+      <div class="result-actions">
+        <button class="btn btn-primary" id="btn-playbook"></button>
+        <button class="btn btn-ghost" id="btn-retake"></button>
+      </div>
+      <p class="fineprint" id="share-label" style="text-align:center;margin-bottom:10px"></p>
+      <div class="share-row">
+        <button class="share-btn" id="share-wa">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.6-6.1c-.3-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.3-.6.8-.8 1-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4 0-.5.1-.7l.4-.5c.1-.2.1-.3 0-.5l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.2-.7.6-.2.4-.9 2.2-.9 4.7 0 1.5.6 3 1.1 3.8.1.2 2 3.2 5 4.4 1.2.5 2 .6 2.7.5.7-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.6-.3z"/></svg>
+          <span>WhatsApp</span>
+        </button>
+        <button class="share-btn" id="share-x">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.9-6.4L6.4 22H3.3l7.3-8.3L1.6 2H8l4.4 5.9L18.9 2zm-1.1 18h1.7L7.1 3.9H5.3L17.8 20z"/></svg>
+          <span>X</span>
+        </button>
+        <button class="share-btn" id="share-copy">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 1H4a2 2 0 0 0-2 2v14h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h11v14z"/></svg>
+          <span id="copy-label"></span>
+        </button>
+      </div>
+      <p class="copied-tip" id="copied-tip"></p>
+    </section>
+
+    <!-- Lead form -->
+    <section id="screen-lead" class="screen" aria-label="Playbook gratis">
+      <div class="lead-card">
+        <div id="lead-form-wrap">
+          <div><span class="badge" id="lead-badge"></span></div>
+          <h2 id="lead-title"></h2>
+          <p class="lead" id="lead-sub"></p>
+          <form id="lead-form" novalidate>
+            <div class="field">
+              <label for="f-nombre" id="l-nombre"></label>
+              <input type="text" id="f-nombre" name="nombre" autocomplete="name" required>
+            </div>
+            <div class="field">
+              <label for="f-marca" id="l-marca"></label>
+              <input type="text" id="f-marca" name="marca" autocomplete="organization">
+            </div>
+            <div class="field">
+              <label for="f-email" id="l-email"></label>
+              <input type="email" id="f-email" name="email" autocomplete="email" required>
+            </div>
+            <div class="field">
+              <label for="f-web" id="l-web"></label>
+              <input type="text" id="f-web" name="web" autocomplete="url" inputmode="url">
+            </div>
+            <div class="field">
+              <label for="f-idioma" id="l-idioma"></label>
+              <select id="f-idioma" name="idioma">
+                <option value="es">Español</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-reto" id="l-reto"></label>
+              <select id="f-reto" name="reto"></select>
+            </div>
+            <button type="submit" class="btn btn-primary" id="btn-submit" style="width:100%"></button>
+            <p class="form-error" id="form-error"></p>
+          </form>
+        </div>
+        <div id="lead-success" class="form-success" style="display:none">
+          <div class="check">✓</div>
+          <h2 id="success-title"></h2>
+          <p class="lead" id="success-sub"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="site-footer"></footer>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
