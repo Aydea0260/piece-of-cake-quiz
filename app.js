@@ -390,14 +390,17 @@
     if (!window.APPS_SCRIPT_URL || window.APPS_SCRIPT_URL === 'PEGAR_URL_AQUI') {
       return Promise.resolve(false); // sin URL configurada: no se envía, pero no se rompe
     }
-    // Apps Script responde 302 y en modo cors el navegador degradaría POST->GET
-    // en el redirect, por lo que doPost jamás se ejecutaría. Con no-cors el POST
-    // sí llega a doPost; la respuesta es opaca (no se puede leer ni confirmar).
-    return fetch(window.APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
+    // Se envía por GET: al seguir el redirect 302 de Apps Script los navegadores
+    // degradan POST->GET y doPost jamás se ejecutaría; doGet recibe el query
+    // string y registra la fila igual. Respuesta opaca (no-cors): un intento.
+    var qs = Object.keys(payload).map(function (k) {
+      var v = payload[k];
+      if (v !== null && typeof v === 'object') v = JSON.stringify(v);
+      return encodeURIComponent(k) + '=' + encodeURIComponent(v == null ? '' : v);
+    }).join('&');
+    return fetch(window.APPS_SCRIPT_URL + '?' + qs, {
+      method: 'GET',
+      mode: 'no-cors'
     }).then(function (res) { return res.type === 'opaque'; }).catch(function () { return false; });
   }
 
